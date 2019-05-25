@@ -36,12 +36,42 @@ def indexes(array, check_word):
             ind_text += str(count) + ','
         count += 1
 
-    return ind_text[:-1]
+    return ind_text
 
 
 def delete_database():
     eng = create_engine(DATABASE_URI)
     Base.metadata.drop_all(eng)
+
+
+def make_posting(searchedWord, result, file, session):
+
+    exsists = False
+    globalFreq = 0
+    globalInds = ''
+
+    words = searchedWord.split()
+    for word in words:
+        if word in result:
+            exsists = True
+
+            fdist = FreqDist(result)
+            freqR = fdist[word]
+            inds = indexes(result, word)
+
+            globalFreq += freqR
+            globalInds += inds
+
+    if exsists:
+        posting = Posting(
+            word=searchedWord,
+            documentName=file[3:],
+            frequency=globalFreq,
+            indexes=globalInds[:-1]
+        )
+
+        session.add(posting)
+        session.commit()
 
 
 if __name__ == "__main__":
@@ -82,20 +112,7 @@ if __name__ == "__main__":
             # save preprocessed text to variable
             result = preprocess_text(og_text)
 
-            word = 'trgovina'
-            if word in result:
-                fdist = FreqDist(result)
-                freqR = fdist[word]
-                inds = indexes(result, word)
-
-                posting = Posting(
-                    word=word,
-                    documentName=file[3:],
-                    frequency=freqR,
-                    indexes=inds
-                )
-
-                s.add(posting)
-                s.commit()
+            for word in queryWords:
+                make_posting(word, result, file, s)
 
     s.close()
