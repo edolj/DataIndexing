@@ -4,12 +4,11 @@ from nltk.probability import FreqDist
 from nltk.corpus import stopwords
 import os
 import re
+import sqlite3
 
-from models import Base, Indexword, Posting
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+conn = sqlite3.connect('inverted-index.db')
+c = conn.cursor()
 
-DATABASE_URI = 'postgres+psycopg2://postgres:defugalo@localhost:5432/indexDB'
 stop_words = set(stopwords.words('slovenian.txt'))
 
 
@@ -39,12 +38,7 @@ def indexes(array, check_word):
     return ind_text
 
 
-def delete_database():
-    eng = create_engine(DATABASE_URI)
-    Base.metadata.drop_all(eng)
-
-
-def make_posting(searchedWord, result, file, session):
+def make_posting(searchedWord, result, file):
 
     exsists = False
     globalFreq = 0
@@ -63,33 +57,37 @@ def make_posting(searchedWord, result, file, session):
             globalInds += inds
 
     if exsists:
-        posting = Posting(
-            word=searchedWord,
-            documentName=file[3:],
-            frequency=globalFreq,
-            indexes=globalInds[:-1]
-        )
+        values = (searchedWord,
+                  file[3:],
+                  globalFreq,
+                  globalInds[:-1])
 
-        session.add(posting)
-        session.commit()
+        c.execute("""INSERT INTO Posting VALUES (?, ?, ?, ?)""", values)
+        conn.commit()
 
 
 if __name__ == "__main__":
 
+    c.execute('''CREATE TABLE IF NOT EXISTS IndexWord (
+                        word TEXT PRIMARY KEY
+                        );''')
+
+    c.execute('''CREATE TABLE IF NOT EXISTS Posting (
+                        word TEXT NOT NULL,
+                        documentName TEXT NOT NULL,
+                        frequency INTEGER NOT NULL,
+                        indexes TEXT NOT NULL,
+                        PRIMARY KEY(word, documentName),
+                        FOREIGN KEY (word) REFERENCES IndexWord(word)
+                    );''')
+
+    conn.commit()
+
     queryWords = ["predelovalne dejavnosti", "trgovina", "social services"]
 
-    engine = create_engine(DATABASE_URI)
-    Base.metadata.create_all(engine)
-    Session = sessionmaker(bind=engine)
-    s = Session()
-
     for word in queryWords:
-        indexWord = Indexword(
-            word=word
-        )
-
-        s.add(indexWord)
-        s.commit()
+        c.execute("""INSERT INTO IndexWord VALUES (?)""", (word,))
+        conn.commit()
 
     directory = "../data/"
 
@@ -105,7 +103,7 @@ if __name__ == "__main__":
             for script in parser(["script", "style", "meta"]):
                 script.extract()
 
-            # append html text to variable
+            # extract and append html text to variable (or get_text())
             for string in parser.stripped_strings:
                 og_text += string + "\n"
 
@@ -113,6 +111,7 @@ if __name__ == "__main__":
             result = preprocess_text(og_text)
 
             for word in queryWords:
-                make_posting(word, result, file, s)
+                make_posting(word, result, file)
 
-    s.close()
+    # r = conn.execute("""SELECT * FROM Posting""")
+    # print(r.fetchall())
