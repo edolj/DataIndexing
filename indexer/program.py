@@ -38,7 +38,7 @@ def indexes(array, check_word):
     return ind_text
 
 
-def make_posting(searchedWord, result, file):
+def test_merging_query(searchedWord, result, file):
 
     exsists = False
     globalFreq = 0
@@ -66,6 +66,14 @@ def make_posting(searchedWord, result, file):
         conn.commit()
 
 
+def data_retrieval():
+    print("Data retrieve from sql db.")
+
+
+def naive_data_retrieval():
+    print("Read each file.")
+
+
 if __name__ == "__main__":
 
     c.execute('''CREATE TABLE IF NOT EXISTS IndexWord (
@@ -83,7 +91,7 @@ if __name__ == "__main__":
 
     conn.commit()
 
-    queryWords = ["predelovalne dejavnosti", "trgovina", "social services"]
+    queryWords = ["predelovalne", "dejavnosti", "trgovina", "social", "services", "arhiv", "davek"]
 
     for word in queryWords:
         c.execute("""INSERT INTO IndexWord VALUES (?)""", (word,))
@@ -111,7 +119,18 @@ if __name__ == "__main__":
             result = preprocess_text(og_text)
 
             for word in queryWords:
-                make_posting(word, result, file)
+                if word in result:
+                    fdist = FreqDist(result)
+                    freqR = fdist[word]
+                    inds = indexes(result, word)
+
+                    values = (word,
+                              file[3:],
+                              freqR,
+                              inds)
+
+                    c.execute("""INSERT INTO Posting VALUES (?, ?, ?, ?)""", values)
+                    conn.commit()
 
     # r = conn.execute("""SELECT * FROM Posting""")
     # print(r.fetchall())

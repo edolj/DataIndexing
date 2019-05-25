@@ -3,8 +3,8 @@
   <component name="ChangeListManager">
     <list default="true" id="676ab940-3fa1-4b09-a01d-d865c7066f15" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/indexer/inverted-index.db" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/indexer/program.py" beforeDir="false" afterPath="$PROJECT_DIR$/indexer/program.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models.py" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -20,8 +20,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/indexer/program.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="323">
-              <caret line="116" column="25" lean-forward="true" selection-start-line="116" selection-start-column="25" selection-end-line="116" selection-end-column="25" />
+            <state relative-caret-position="233">
+              <caret line="93" column="99" selection-start-line="93" selection-start-column="99" selection-end-line="93" selection-end-column="99" />
               <folding>
                 <element signature="e#0#29#0" expanded="true" />
               </folding>
@@ -92,11 +92,6 @@
               <item name="DataIndexing" type="b2602c69:ProjectViewProjectNode" />
               <item name="DataIndexing" type="462c0819:PsiDirectoryNode" />
             </path>
-            <path>
-              <item name="DataIndexing" type="b2602c69:ProjectViewProjectNode" />
-              <item name="DataIndexing" type="462c0819:PsiDirectoryNode" />
-              <item name="indexer" type="462c0819:PsiDirectoryNode" />
-            </path>
           </expand>
           <select />
         </subPane>
@@ -164,12 +159,12 @@
     <frame x="20" y="23" width="1400" height="800" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49894738" visible="true" weight="0.24945612" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49894738" visible="true" weight="0.24945612" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" sideWeight="0.5010526" side_tool="true" weight="0.24945612" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32909605" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.32909605" />
+      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.32909605" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -213,8 +208,8 @@
     <entry file="file://$PROJECT_DIR$/models.py" />
     <entry file="file://$PROJECT_DIR$/indexer/program.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="323">
-          <caret line="116" column="25" lean-forward="true" selection-start-line="116" selection-start-column="25" selection-end-line="116" selection-end-column="25" />
+        <state relative-caret-position="233">
+          <caret line="93" column="99" selection-start-line="93" selection-start-column="99" selection-end-line="93" selection-end-column="99" />
           <folding>
             <element signature="e#0#29#0" expanded="true" />
           </folding>
