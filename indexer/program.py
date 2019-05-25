@@ -10,6 +10,22 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 DATABASE_URI = 'postgres+psycopg2://postgres:defugalo@localhost:5432/indexDB'
+stop_words = set(stopwords.words('slovenian.txt'))
+
+
+def preprocess_text(og_text):
+    # 1. convert text to lowercase
+    text = og_text.lower()
+
+    # 2. remove numbers
+    text = re.sub(r'\d+', '', text)
+
+    # 3. remove punctuation
+    text = re.sub(r'[^\w\s]', '', text)
+
+    # 4. stop words
+    tokens = word_tokenize(text)
+    return [i for i in tokens if not i in stop_words]
 
 
 def indexes(array, check_word):
@@ -23,38 +39,29 @@ def indexes(array, check_word):
     return ind_text[:-1]
 
 
-def recreate_database(eng):
+def delete_database():
+    eng = create_engine(DATABASE_URI)
     Base.metadata.drop_all(eng)
-    Base.metadata.create_all(eng)
 
 
 if __name__ == "__main__":
+
+    queryWords = ["predelovalne dejavnosti", "trgovina", "social services"]
 
     engine = create_engine(DATABASE_URI)
     Base.metadata.create_all(engine)
     Session = sessionmaker(bind=engine)
     s = Session()
 
-    '''
-    posting = Posting(
-        word='trgovina',
-        documentName='prodaja',
-        frequency=15,
-        indexes='1,2,3,4'
-    )
-  
-    indexWord = Indexword(
-        word='trgovina'
-    )
-    
-    s.add(indexWord)
-    s.commit()
-    s.close()
-    '''
+    for word in queryWords:
+        indexWord = Indexword(
+            word=word
+        )
 
-    stop_words = set(stopwords.words('slovenian.txt'))
+        s.add(indexWord)
+        s.commit()
 
-    directory = "../data/e-prostor.gov.si/"
+    directory = "../data/"
 
     for filename in os.listdir(directory):
         if filename.endswith(".html"):
@@ -65,31 +72,17 @@ if __name__ == "__main__":
             parser = BeautifulSoup(readFile, "html.parser")
 
             # remove all javascript and stylesheet code
-            for script in parser(["script", "style"]):
+            for script in parser(["script", "style", "meta"]):
                 script.extract()
 
             # append html text to variable
             for string in parser.stripped_strings:
                 og_text += string + "\n"
 
-            # PREPROCESSING
+            # save preprocessed text to variable
+            result = preprocess_text(og_text)
 
-            # 1. convert text to lowercase
-            text = og_text.lower()
-
-            # 2. remove numbers
-            text = re.sub(r'\d+', '', text)
-
-            # 3. remove punctuation
-            text = re.sub(r'[^\w\s]', '', text)
-
-            # 4. stop words
-            tokens = word_tokenize(text)
-            result = [i for i in tokens if not i in stop_words]
-
-            # end
-
-            word = 'arhiv'
+            word = 'trgovina'
             if word in result:
                 fdist = FreqDist(result)
                 freqR = fdist[word]
@@ -97,7 +90,7 @@ if __name__ == "__main__":
 
                 posting = Posting(
                     word=word,
-                    documentName=file,
+                    documentName=file[3:],
                     frequency=freqR,
                     indexes=inds
                 )
@@ -106,4 +99,3 @@ if __name__ == "__main__":
                 s.commit()
 
     s.close()
-
