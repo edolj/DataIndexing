@@ -38,34 +38,6 @@ def indexes(array, check_word):
     return ind_text
 
 
-def test_merging_query(searchedWord, result, file):
-
-    exsists = False
-    globalFreq = 0
-    globalInds = ''
-
-    words = searchedWord.split()
-    for word in words:
-        if word in result:
-            exsists = True
-
-            fdist = FreqDist(result)
-            freqR = fdist[word]
-            inds = indexes(result, word)
-
-            globalFreq += freqR
-            globalInds += inds
-
-    if exsists:
-        values = (searchedWord,
-                  file[3:],
-                  globalFreq,
-                  globalInds[:-1])
-
-        c.execute("""INSERT INTO Posting VALUES (?, ?, ?, ?)""", values)
-        conn.commit()
-
-
 def print_output(array):
     print("Frequencies  Document                                      Snippet")
     print("------------ --------------------------------------------- --------------------------------------------")
@@ -76,7 +48,7 @@ def print_output(array):
         firstSnippetIndex = int(inds[0])
 
         og_text = ""
-        file = "../"+i[1]
+        file = "../" + i[1]
         readFile = open(file, 'r').read()
         parser = BeautifulSoup(readFile, "html.parser")
 
@@ -84,17 +56,18 @@ def print_output(array):
         for script in parser(["script", "style", "meta"]):
             script.extract()
 
-        # extract and append html text to variable (or get_text())
         for string in parser.stripped_strings:
             og_text += string + "\n"
 
         tokens = preprocess_text(og_text)
 
-        snippet = "..." + tokens[firstSnippetIndex-2]+" "+tokens[firstSnippetIndex-1]+" "+tokens[firstSnippetIndex] \
-                   + " " + tokens[firstSnippetIndex+1] + " " + tokens[firstSnippetIndex+2] + "..."
+        snippet = "..." + tokens[firstSnippetIndex - 2] + " " + tokens[firstSnippetIndex - 1] + " " + \
+                  tokens[firstSnippetIndex] \
+                  + " " + tokens[firstSnippetIndex + 1] + " " + tokens[firstSnippetIndex + 2] + "..."
 
         # izpis podatkov v tabelo
         print(str(i[2]) + "            " + i[1] + "                   " + snippet)
+
 
 def data_retrieval(queryWord):
     print("Results for a query: \"" + queryWord + "\"")
@@ -108,7 +81,8 @@ def data_retrieval(queryWord):
         print_output(outputs)
     else:
         value = queryWord.lower().split()
-        r = conn.execute("""SELECT * FROM Posting WHERE word IN (%s) ORDER BY frequency DESC""" % ("?," * len(value))[:-1], value)
+        r = conn.execute(
+            """SELECT * FROM Posting WHERE word IN (%s) ORDER BY frequency DESC""" % ("?," * len(value))[:-1], value)
         outputs = r.fetchall()
 
         # merging list
@@ -116,7 +90,7 @@ def data_retrieval(queryWord):
         for i in outputs:
             for j in outputs:
                 if i != j and i[1] == j[1]:
-                    mergedList.append((i[0]+" "+j[0], i[1], i[2]+j[2], (i[3]+j[3])[:-1]))
+                    mergedList.append((i[0] + " " + j[0], i[1], i[2] + j[2], (i[3] + j[3])[:-1]))
                     outputs.remove(j)
                     outputs.remove(i)
 
@@ -128,8 +102,9 @@ def data_retrieval(queryWord):
         print_output(sortedOutput)
 
 
-def naive_data_retrieval():
-    print("Read each file.")
+def naive_data_retrieval(queryWord):
+    print("Results for a query: \"" + queryWord + "\"")
+    print()
 
 
 def data_indexing(queryWords):
@@ -189,9 +164,10 @@ def data_indexing(queryWords):
 
 
 if __name__ == "__main__":
-
     queryWords = ["trgovina", "davek", "predelovalne", "dejavnosti", "social", "services", "arhiv", "sistem", "spot"]
-    data_indexing(queryWords)
+    # data_indexing(queryWords)
 
-    data_retrieval("social services")
+    # query: "trgovina", "predelovalne dejavnosti", "social services", "davek", "arhiv", "sistem spot"
+    #data_retrieval("social services")
 
+    naive_data_retrieval("trgovina")
