@@ -66,32 +66,87 @@ def test_merging_query(searchedWord, result, file):
         conn.commit()
 
 
-def data_retrieval():
-    print("Data retrieve from sql db.")
+def print_output(array):
+    print("Frequencies  Document                                      Snippet")
+    print("------------ --------------------------------------------- --------------------------------------------")
+
+    for i in array:
+        # logika za pridobivanje snippeta
+        inds = i[3].split(",")
+        firstSnippetIndex = int(inds[0])
+
+        og_text = ""
+        file = "../"+i[1]
+        readFile = open(file, 'r').read()
+        parser = BeautifulSoup(readFile, "html.parser")
+
+        # remove all javascript and stylesheet code
+        for script in parser(["script", "style", "meta"]):
+            script.extract()
+
+        # extract and append html text to variable (or get_text())
+        for string in parser.stripped_strings:
+            og_text += string + "\n"
+
+        tokens = preprocess_text(og_text)
+
+        snippet = "..." + tokens[firstSnippetIndex-2]+" "+tokens[firstSnippetIndex-1]+" "+tokens[firstSnippetIndex] \
+                   + " " + tokens[firstSnippetIndex+1] + " " + tokens[firstSnippetIndex+2] + "..."
+
+        # izpis podatkov v tabelo
+        print(str(i[2]) + "            " + i[1] + "                   " + snippet)
+
+def data_retrieval(queryWord):
+    print("Results for a query: \"" + queryWord + "\"")
+    print()
+
+    if len(queryWord.split()) == 1:
+        value = (queryWord.lower(),)
+        r = conn.execute("""SELECT * FROM Posting WHERE word = ? ORDER BY frequency DESC""", value)
+        outputs = r.fetchall()
+
+        print_output(outputs)
+    else:
+        value = queryWord.lower().split()
+        r = conn.execute("""SELECT * FROM Posting WHERE word IN (%s) ORDER BY frequency DESC""" % ("?," * len(value))[:-1], value)
+        outputs = r.fetchall()
+
+        # merging list
+        mergedList = []
+        for i in outputs:
+            for j in outputs:
+                if i != j and i[1] == j[1]:
+                    mergedList.append((i[0]+" "+j[0], i[1], i[2]+j[2], (i[3]+j[3])[:-1]))
+                    outputs.remove(j)
+                    outputs.remove(i)
+
+        for i in outputs:
+            mergedList.append(i)
+
+        # sort by frequencies and descend order
+        sortedOutput = sorted(mergedList, key=lambda x: x[2], reverse=True)
+        print_output(sortedOutput)
 
 
 def naive_data_retrieval():
     print("Read each file.")
 
 
-if __name__ == "__main__":
-
+def data_indexing(queryWords):
     c.execute('''CREATE TABLE IF NOT EXISTS IndexWord (
-                        word TEXT PRIMARY KEY
-                        );''')
+                            word TEXT PRIMARY KEY
+                            );''')
 
     c.execute('''CREATE TABLE IF NOT EXISTS Posting (
-                        word TEXT NOT NULL,
-                        documentName TEXT NOT NULL,
-                        frequency INTEGER NOT NULL,
-                        indexes TEXT NOT NULL,
-                        PRIMARY KEY(word, documentName),
-                        FOREIGN KEY (word) REFERENCES IndexWord(word)
-                    );''')
+                            word TEXT NOT NULL,
+                            documentName TEXT NOT NULL,
+                            frequency INTEGER NOT NULL,
+                            indexes TEXT NOT NULL,
+                            PRIMARY KEY(word, documentName),
+                            FOREIGN KEY (word) REFERENCES IndexWord(word)
+                        );''')
 
     conn.commit()
-
-    queryWords = ["predelovalne", "dejavnosti", "trgovina", "social", "services", "arhiv", "davek"]
 
     for word in queryWords:
         c.execute("""INSERT INTO IndexWord VALUES (?)""", (word,))
@@ -132,5 +187,11 @@ if __name__ == "__main__":
                     c.execute("""INSERT INTO Posting VALUES (?, ?, ?, ?)""", values)
                     conn.commit()
 
-    # r = conn.execute("""SELECT * FROM Posting""")
-    # print(r.fetchall())
+
+if __name__ == "__main__":
+
+    queryWords = ["trgovina", "davek", "predelovalne", "dejavnosti", "social", "services", "arhiv", "sistem", "spot"]
+    data_indexing(queryWords)
+
+    data_retrieval("social services")
+
