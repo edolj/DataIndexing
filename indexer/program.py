@@ -5,11 +5,13 @@ from nltk.corpus import stopwords
 import os
 import re
 import sqlite3
+import time
 
 conn = sqlite3.connect('inverted-index.db')
 c = conn.cursor()
 
 stop_words = set(stopwords.words('slovenian.txt'))
+naive_data_array = []
 
 
 def preprocess_text(og_text):
@@ -38,7 +40,10 @@ def indexes(array, check_word):
     return ind_text
 
 
-def print_output(array):
+def print_output(array, time):
+    print("Results found in %s s." % time)
+    print()
+
     print("Frequencies  Document                                      Snippet")
     print("------------ --------------------------------------------- --------------------------------------------")
 
@@ -73,12 +78,15 @@ def data_retrieval(queryWord):
     print("Results for a query: \"" + queryWord + "\"")
     print()
 
+    start_time = time.time()
+
     if len(queryWord.split()) == 1:
         value = (queryWord.lower(),)
         r = conn.execute("""SELECT * FROM Posting WHERE word = ? ORDER BY frequency DESC""", value)
         outputs = r.fetchall()
 
-        print_output(outputs)
+        end_time = time.time() - start_time
+        print_output(outputs, end_time)
     else:
         value = queryWord.lower().split()
         r = conn.execute(
@@ -97,14 +105,68 @@ def data_retrieval(queryWord):
         for i in outputs:
             mergedList.append(i)
 
+        end_time = time.time() - start_time
+
         # sort by frequencies and descend order
         sortedOutput = sorted(mergedList, key=lambda x: x[2], reverse=True)
-        print_output(sortedOutput)
+        print_output(sortedOutput, end_time)
+
+
+def merging_query(searchedWord, result, file):
+    exsists = False
+    globalFreq = 0
+    globalInds = ''
+
+    words = searchedWord.split()
+    for word in words:
+        if word in result:
+            exsists = True
+
+            fdist = FreqDist(result)
+            freqR = fdist[word]
+            inds = indexes(result, word)
+
+            globalFreq += freqR
+            globalInds += inds
+
+    if exsists:
+        found_tuple = (searchedWord, file[3:], globalFreq, globalInds[:-1])
+        naive_data_array.append(found_tuple)
 
 
 def naive_data_retrieval(queryWord):
     print("Results for a query: \"" + queryWord + "\"")
     print()
+
+    start_time = time.time()
+
+    directory = "../data/"
+
+    for filename in os.listdir(directory):
+        if filename.endswith(".html"):
+
+            og_text = ""
+            file = directory + filename
+            readFile = open(file, 'r').read()
+            parser = BeautifulSoup(readFile, "html.parser")
+
+            # remove all javascript and stylesheet code
+            for script in parser(["script", "style", "meta"]):
+                script.extract()
+
+            # extract and append html text to variable (or get_text())
+            for string in parser.stripped_strings:
+                og_text += string + "\n"
+
+            # save preprocessed text to variable
+            result = preprocess_text(og_text)
+            merging_query(queryWord, result, file)
+
+    end_time = time.time() - start_time
+
+    # sort by frequencies and descend order
+    sortedOutput = sorted(naive_data_array, key=lambda x: x[2], reverse=True)
+    print_output(sortedOutput, end_time)
 
 
 def data_indexing(queryWords):
@@ -164,10 +226,12 @@ def data_indexing(queryWords):
 
 
 if __name__ == "__main__":
+
     queryWords = ["trgovina", "davek", "predelovalne", "dejavnosti", "social", "services", "arhiv", "sistem", "spot"]
-    # data_indexing(queryWords)
+
+    data_indexing(queryWords)
 
     # query: "trgovina", "predelovalne dejavnosti", "social services", "davek", "arhiv", "sistem spot"
-    #data_retrieval("social services")
+    data_retrieval("davek")
 
-    naive_data_retrieval("trgovina")
+    naive_data_retrieval("davek")
