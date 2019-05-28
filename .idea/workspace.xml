@@ -3,6 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="676ab940-3fa1-4b09-a01d-d865c7066f15" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/indexer/inverted-index.db" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/indexer/program.py" beforeDir="false" afterPath="$PROJECT_DIR$/indexer/program.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -19,8 +20,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/indexer/program.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="372">
-              <caret line="236" column="33" lean-forward="true" selection-start-line="236" selection-start-column="33" selection-end-line="236" selection-end-column="33" />
+            <state relative-caret-position="309">
+              <caret line="235" column="42" lean-forward="true" selection-start-line="235" selection-start-column="42" selection-end-line="235" selection-end-column="42" />
               <folding>
                 <element signature="e#0#29#0" expanded="true" />
               </folding>
@@ -39,23 +40,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>xsd</find>
-      <find>preg</find>
-      <find>februar</find>
-      <find>sigovca</find>
-      <find>ceno</find>
-      <find>ali</find>
-      <find>vse</find>
-      <find>avgust</find>
-      <find>maj</find>
-      <find>januarja</find>
-      <find>januar</find>
-      <find>decembra</find>
-      <find>februarja</find>
-      <find>a</find>
-      <find>arhiv</find>
-      <find>podatki</find>
-      <find>podatki.gov.si.1</find>
       <find>podatki.gov.si.1.</find>
       <find>trgovina</find>
       <find>trgov</find>
@@ -66,6 +50,26 @@
       <find>data/evem.gov.si.57.html</find>
       <find>data/evem.gov.si.10.html</find>
       <find>dejavnosti</find>
+      <find>varnost</find>
+      <find>teme</find>
+      <find>velike</find>
+      <find>podatki</find>
+      <find>format</find>
+      <find>all</find>
+      <find>pravni</find>
+      <find>only</find>
+      <find>sistem</find>
+      <find>?</find>
+      <find>,</find>
+      <find>','</find>
+      <find>&lt;</find>
+      <find>&gt;</find>
+      <find>/</find>
+      <find>|</find>
+      <find>-</find>
+      <find>``</find>
+      <find>f</find>
+      <find>''</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -97,6 +101,11 @@
             <path>
               <item name="DataIndexing" type="b2602c69:ProjectViewProjectNode" />
               <item name="DataIndexing" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="DataIndexing" type="b2602c69:ProjectViewProjectNode" />
+              <item name="DataIndexing" type="462c0819:PsiDirectoryNode" />
+              <item name="indexer" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -214,8 +223,8 @@
     <entry file="file://$PROJECT_DIR$/models.py" />
     <entry file="file://$PROJECT_DIR$/indexer/program.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="372">
-          <caret line="236" column="33" lean-forward="true" selection-start-line="236" selection-start-column="33" selection-end-line="236" selection-end-column="33" />
+        <state relative-caret-position="309">
+          <caret line="235" column="42" lean-forward="true" selection-start-line="235" selection-start-column="42" selection-end-line="235" selection-end-column="42" />
           <folding>
             <element signature="e#0#29#0" expanded="true" />
           </folding>

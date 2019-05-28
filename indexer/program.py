@@ -19,10 +19,10 @@ def preprocess_text(og_text):
     text = og_text.lower()
 
     # 2. remove numbers
-    text = re.sub(r'\d+', '', text)
+    text = re.sub(r'\d+', ' ', text)
 
     # 3. remove punctuation
-    text = re.sub(r'[^\w\s]', '', text)
+    text = re.sub(r'[^\w\s]', ' ', text)
 
     # 4. stop words
     tokens = word_tokenize(text)
@@ -66,9 +66,9 @@ def print_output(array, time):
 
         tokens = preprocess_text(og_text)
 
-        snippet = "..." + tokens[firstSnippetIndex - 2] + " " + tokens[firstSnippetIndex - 1] + " " + \
-                  tokens[firstSnippetIndex] \
-                  + " " + tokens[firstSnippetIndex + 1] + " " + tokens[firstSnippetIndex + 2] + "..."
+        snippet = "..." + tokens[firstSnippetIndex - 3] + " " + tokens[firstSnippetIndex - 2] + " " + \
+                  tokens[firstSnippetIndex - 1] + " " + tokens[firstSnippetIndex] + " "+tokens[firstSnippetIndex + 1] \
+                  + " " + tokens[firstSnippetIndex + 2] + " " + tokens[firstSnippetIndex + 3] + "..."
 
         # izpis podatkov v tabelo
         print(str(i[2]) + "            " + i[1] + "                   " + snippet)
@@ -154,12 +154,11 @@ def naive_data_retrieval(queryWord):
             for script in parser(["script", "style", "meta"]):
                 script.extract()
 
-            # extract and append html text to variable (or get_text())
-            for string in parser.stripped_strings:
-                og_text += string + "\n"
+            og_text = parser.get_text()
+            text = re.sub('\[[^]]*\]', '', og_text)
 
             # save preprocessed text to variable
-            result = preprocess_text(og_text)
+            result = preprocess_text(text)
             merging_query(queryWord, result, file)
 
     end_time = time.time() - start_time
@@ -169,7 +168,7 @@ def naive_data_retrieval(queryWord):
     print_output(sortedOutput, end_time)
 
 
-def data_indexing(queryWords):
+def data_indexing():
     c.execute('''CREATE TABLE IF NOT EXISTS IndexWord (
                             word TEXT PRIMARY KEY
                             );''')
@@ -185,10 +184,6 @@ def data_indexing(queryWords):
 
     conn.commit()
 
-    for word in queryWords:
-        c.execute("""INSERT INTO IndexWord VALUES (?)""", (word,))
-        conn.commit()
-
     directory = "../data/"
 
     for filename in os.listdir(directory):
@@ -203,35 +198,39 @@ def data_indexing(queryWords):
             for script in parser(["script", "style", "meta"]):
                 script.extract()
 
-            # extract and append html text to variable (or get_text())
-            for string in parser.stripped_strings:
-                og_text += string + "\n"
+            og_text = parser.get_text()
+            text = re.sub('\[[^]]*\]', '', og_text)
 
             # save preprocessed text to variable
-            result = preprocess_text(og_text)
+            result = preprocess_text(text)
 
-            for word in queryWords:
-                if word in result:
-                    fdist = FreqDist(result)
-                    freqR = fdist[word]
-                    inds = indexes(result, word)
+            # unique tokens
+            uniqTokens = list(set(result))
 
-                    values = (word,
-                              file[3:],
-                              freqR,
-                              inds)
+            # frequencies
+            fdist = FreqDist(result)
 
-                    c.execute("""INSERT INTO Posting VALUES (?, ?, ?, ?)""", values)
-                    conn.commit()
+            for word in uniqTokens:
+                c.execute("""INSERT OR IGNORE INTO IndexWord VALUES (?)""", (word,))
+                conn.commit()
+
+                freqR = fdist[word]
+                inds = indexes(result, word)
+
+                values = (word,
+                          file[3:],
+                          freqR,
+                          inds[:-1])
+
+                c.execute("""INSERT INTO Posting VALUES (?, ?, ?, ?)""", values)
+                conn.commit()
 
 
 if __name__ == "__main__":
 
-    queryWords = ["trgovina", "davek", "predelovalne", "dejavnosti", "social", "services", "arhiv", "sistem", "spot"]
-
-    data_indexing(queryWords)
+    data_indexing()
 
     # query: "trgovina", "predelovalne dejavnosti", "social services", "davek", "arhiv", "sistem spot"
-    data_retrieval("davek")
+    data_retrieval("social services")
 
-    naive_data_retrieval("davek")
+    naive_data_retrieval("social sevices")
