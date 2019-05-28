@@ -230,7 +230,7 @@ if __name__ == "__main__":
 
     data_indexing()
 
-    # query: "trgovina", "predelovalne dejavnosti", "social services", "davek", "arhiv", "sistem spot"
-    data_retrieval("social services")
+    # query: "trgovina", "predelovalne dejavnosti", "social services", "davek", "arhiv", "omejitve prodaje"
+    data_retrieval("trgovina")
 
-    naive_data_retrieval("social sevices")
+    naive_data_retrieval("trgovina")
